@@ -8,11 +8,11 @@ extends Control
 @onready var messages_field = $VBoxContainer/MessagesValue
 
 func update_peer(peer: SyncManager.Peer) -> void:
-	peer_id_field.text = str(peer.peer_id)
-	rtt_field.text = str(peer.rtt) + " ms"
-	local_lag_field.text = str(peer.local_lag)
-	remote_lag_field.text = str(peer.remote_lag)
-	advantage_field.text = str(peer.calculated_advantage)
+    peer_id_field.text = str(peer.peer_id)
+    rtt_field.text = str(peer.rtt) + " ms"
+    local_lag_field.text = str(peer.local_lag)
+    remote_lag_field.text = str(peer.remote_lag)
+    advantage_field.text = str(peer.calculated_advantage)
 
 func add_message(msg: String) -> void:
-	messages_field.text += "* " + msg + "\n"
+    messages_field.text += "* " + msg + "\n"

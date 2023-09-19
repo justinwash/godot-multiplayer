@@ -7,7 +7,6 @@
 [ext_resource type="Script" path="res://addons/godot-rollback-netcode/log_inspector/ReplayServer.gd" id="5"]
 
 [node name="LogInspector" type="Control"]
-custom_minimum_size = Vector2(800, 320)
 layout_mode = 3
 anchors_preset = 0
 offset_top = 36.0

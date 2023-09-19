@@ -1,6 +1,55 @@
-[gd_scene load_steps=2 format=3 uid="uid://b2xlkrs7omxu6"]
+[gd_scene load_steps=8 format=3 uid="uid://b2xlkrs7omxu6"]
 
 [ext_resource type="Script" path="res://main.gd" id="1_s23jy"]
+[ext_resource type="Texture2D" uid="uid://l1t0sx0jns4h" path="res://addons/kenney_prototype_textures/dark/texture_03.png" id="2_lblcu"]
+[ext_resource type="PackedScene" uid="uid://bjm128fnp6rbi" path="res://Player.tscn" id="3_r0bqp"]
+[ext_resource type="Script" path="res://mouse_toggle.gd" id="4_gvofc"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_gexah"]
+size = Vector3(100, 1, 100)
+
+[sub_resource type="BoxMesh" id="BoxMesh_fuwto"]
+size = Vector3(100, 1, 100)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_svu4v"]
+albedo_texture = ExtResource("2_lblcu")
+albedo_texture_force_srgb = true
 
 [node name="Main" type="Node"]
 script = ExtResource("1_s23jy")
+
+[node name="World" type="Node3D" parent="."]
+
+[node name="MeshInstance3D" type="StaticBody3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.504437, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="World/MeshInstance3D"]
+shape = SubResource("BoxShape3D_gexah")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="World/MeshInstance3D"]
+mesh = SubResource("BoxMesh_fuwto")
+surface_material_override/0 = SubResource("StandardMaterial3D_svu4v")
+
+[node name="Spawn1" type="Marker3D" parent="World"]
+transform = Transform3D(-0.90568, 0, -0.423962, 0, 1, 0, 0.423962, 0, -0.90568, -34.0676, 4.8643, -38.319)
+
+[node name="Spawn2" type="Marker3D" parent="World"]
+transform = Transform3D(0.818661, 0, 0.574277, 0, 1, 0, -0.574277, 0, 0.818661, 22.0212, 4.8643, 22.1402)
+
+[node name="Player1" parent="World" instance=ExtResource("3_r0bqp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -34.4785, 2.47635, -34.5527)
+
+[node name="Player2" parent="World" instance=ExtResource("3_r0bqp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.421, 3.20783, 30.6576)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.934885, 0.354945, -0.00185935, -0.006378, -0.011561, 0.999913, 0.354892, 0.934816, 0.013072, 0, 341.283, 0)
+
+[node name="MouseToggle" type="Node" parent="."]
+script = ExtResource("4_gvofc")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 50.1034, 0)
+projection = 1
+fov = 92.9
+size = 102.501

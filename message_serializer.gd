@@ -1,0 +1,118 @@
+extends "res://addons/godot-rollback-netcode/MessageSerializer.gd"
+
+const input_path_map = {
+  "/root/Main/World/Player1": 1,
+  "/root/Main/World/Player2": 2,
+}
+
+var input_path_map_read := {}
+
+func _init() -> void:
+  for key in input_path_map:
+    input_path_map_read[input_path_map[key]] = key
+
+enum HEADER_FLAGS {
+  HAS_INPUT_VECTOR = 0x01,
+  HAS_JUMP = 0x01,
+  HAS_ROTATION = 0x01,
+  HAS_CAMERA_ROTATION = 0x01,
+}
+
+func serialize_input(all_input: Dictionary) -> PackedByteArray:
+  var buffer = StreamPeerBuffer.new()
+  buffer.resize(32)
+  
+  buffer.put_32(all_input['$'])
+  buffer.put_u8(all_input.size() - 1)
+  
+  for path in all_input:
+    if path == '$':
+      continue
+    buffer.put_u8(input_path_map[path])
+    
+    var input = all_input[path]
+    
+    # input_vector
+    var input_vector_header = 0
+    if input.has("input_vector"):
+      input_vector_header |= HEADER_FLAGS.HAS_INPUT_VECTOR
+      
+    buffer.put_u8(input_vector_header)
+    
+    if input.has("input_vector"):
+      var input_vector = input["input_vector"]
+      buffer.put_float(input_vector.x)
+      buffer.put_float(input_vector.y)
+      
+    # jump
+    var jump_header = 0
+    if input.has("jump"):
+      jump_header |= HEADER_FLAGS.HAS_JUMP
+      
+    buffer.put_u8(jump_header)
+    
+    if input.has("jump"):
+      buffer.put_u8(1 if input["jump"] == true else 0)
+    
+    # rotation
+    var rotation_header = 0
+    if input.has("rotation"):
+      rotation_header |= HEADER_FLAGS.HAS_ROTATION
+      
+    buffer.put_u8(rotation_header)
+    
+    if input.has("rotation"):
+      var rotation = input["rotation"]
+      buffer.put_float(rotation.x)
+      buffer.put_float(rotation.y)
+      buffer.put_float(rotation.z)
+      
+    # camera_rotation
+    var camera_rotation_header = 0
+    if input.has("camera_rotation"):
+      camera_rotation_header |= HEADER_FLAGS.HAS_CAMERA_ROTATION
+      
+    buffer.put_u8(camera_rotation_header)
+    
+    if input.has("camera_rotation"):
+      var camera_rotation = input["camera_rotation"]
+      buffer.put_float(camera_rotation.x)
+      buffer.put_float(camera_rotation.y)
+      buffer.put_float(camera_rotation.z)
+  
+  buffer.resize(buffer.get_position())
+  return buffer.data_array
+
+func unserialize_input(serialized: PackedByteArray) -> Dictionary:
+  var buffer := StreamPeerBuffer.new()
+  buffer.put_data(serialized)
+  buffer.seek(0)
+  
+  var all_input = {}
+  
+  all_input['$'] = buffer.get_u32()
+  
+  var input_count = buffer.get_u8()
+  if input_count == 0:
+    return all_input
+    
+  var path = input_path_map_read[buffer.get_u8()]
+  var input := {}
+  
+  var input_vector_header = buffer.get_u8()
+  if input_vector_header & HEADER_FLAGS.HAS_INPUT_VECTOR:
+    input["input_vector"] = Vector2(buffer.get_float(), buffer.get_float())
+  var jump_header = buffer.get_u8()
+  if jump_header & HEADER_FLAGS.HAS_JUMP:
+    var jump = buffer.get_u8()
+    input["jump"] = true if jump == 1 else false
+  var rotation_header = buffer.get_u8()
+  if rotation_header & HEADER_FLAGS.HAS_ROTATION:
+    input["rotation"] = Vector3(buffer.get_float(), buffer.get_float(), buffer.get_float())
+  var camera_rotation_header = buffer.get_u8()
+  if camera_rotation_header & HEADER_FLAGS.HAS_CAMERA_ROTATION:
+    input["camera_rotation"] = Vector3(buffer.get_float(), buffer.get_float(), buffer.get_float())
+    
+  all_input[path] = input
+  return all_input
+  

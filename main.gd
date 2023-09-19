@@ -18,13 +18,6 @@ func start():
 
   if peer.host:
     host = true
-    var _peer_connected =  multiplayer.peer_connected.connect(on_peer_connected)
-    var _peer_disconnected = multiplayer.peer_disconnected.connect(on_peer_disconnected)
-    var _sync_started = SyncManager.sync_started.connect(on_sync_started)
-    var _sync_stopped = SyncManager.sync_stopped.connect(on_sync_stopped)
-    var _sync_lost = SyncManager.sync_lost.connect(on_sync_lost)
-    var _sync_regained = SyncManager.sync_regained.connect(on_sync_regained)
-    
     multiplayer.multiplayer_peer = peer
     print("Server listening on port: ", SERVER_PORT)
 
@@ -33,10 +26,17 @@ func start():
     print("Server failed to start. Starting client")
   
     _peer = peer.create_client(SERVER_ADDRESS, SERVER_PORT)
-    var _peer_connected =  multiplayer.peer_connected.connect(on_peer_connected)
-    var _peer_disconnected = multiplayer.peer_disconnected.connect(on_peer_disconnected)
     print("Client connecting to server at: ", SERVER_ADDRESS, ":", SERVER_PORT)
 
+    var _peer_connected =  multiplayer.peer_connected.connect(on_peer_connected)
+    var _peer_disconnected = multiplayer.peer_disconnected.connect(on_peer_disconnected)
+
+    var _sync_started = SyncManager.sync_started.connect(on_sync_started)
+    var _sync_stopped = SyncManager.sync_stopped.connect(on_sync_stopped)
+    var _sync_lost = SyncManager.sync_lost.connect(on_sync_lost)
+    var _sync_regained = SyncManager.sync_regained.connect(on_sync_regained)
+    var _sync_error = SyncManager.sync_error.connect(on_sync_error)
+    
     multiplayer.multiplayer_peer = peer
 
 func on_peer_connected(id):
@@ -95,3 +95,6 @@ func on_sync_lost():
   
 func on_sync_regained():
   print("Sync regained!")
+
+func on_sync_error():
+  print("Sync error!")

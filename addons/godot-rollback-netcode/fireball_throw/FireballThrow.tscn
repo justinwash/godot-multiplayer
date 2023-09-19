@@ -1,0 +1,51 @@
+[gd_scene load_steps=8 format=3 uid="uid://dbpe45lanavug"]
+
+[ext_resource type="Script" path="res://src/abilities/fireball_throw/fireball_throw.gd" id="1_i1ytb"]
+[ext_resource type="PackedScene" uid="uid://dj3qgs3o8lp2" path="res://projectiles/fireball/Fireball.tscn" id="2_py3fj"]
+[ext_resource type="AudioStream" uid="uid://cvbrkk41ui4bx" path="res://sounds/rocket_fire.mp3" id="3_ck6vh"]
+
+[sub_resource type="Animation" id="Animation_a41d6"]
+length = 0.001
+
+[sub_resource type="Animation" id="Animation_8yhqu"]
+resource_name = "equip"
+length = 0.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:fire_ready")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.4),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+
+[sub_resource type="Animation" id="Animation_7f7k8"]
+resource_name = "fire"
+length = 0.5
+step = 0.05
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_aqtx8"]
+_data = {
+"RESET": SubResource("Animation_a41d6"),
+"equip": SubResource("Animation_8yhqu"),
+"fire": SubResource("Animation_7f7k8")
+}
+
+[node name="Fireball" type="Node3D"]
+script = ExtResource("1_i1ytb")
+projectile_speed = 30
+projectile_scene = ExtResource("2_py3fj")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_aqtx8")
+}
+
+[node name="FireSoundPlayer" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("3_ck6vh")
+max_db = 0.0
+doppler_tracking = 2

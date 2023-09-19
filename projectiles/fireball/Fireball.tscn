@@ -1,0 +1,78 @@
+[gd_scene load_steps=11 format=3 uid="uid://dj3qgs3o8lp2"]
+
+[ext_resource type="Script" path="res://projectiles/fireball/fireball.gd" id="1_edqc4"]
+[ext_resource type="Texture2D" uid="uid://cwft2cii4la0c" path="res://sprites/fire_particle.png" id="2_hddxq"]
+[ext_resource type="AudioStream" uid="uid://dqfgi5s0kw21a" path="res://sounds/rocket_loop.mp3" id="3_swmdu"]
+[ext_resource type="Script" path="res://addons/godot-rollback-netcode/NetworkTimer.gd" id="4_vpebx"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_2rgwn"]
+radius = 0.283474
+height = 0.6
+
+[sub_resource type="Gradient" id="Gradient_bkvh5"]
+offsets = PackedFloat32Array(0, 0.745562)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_866ma"]
+gradient = SubResource("Gradient_bkvh5")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_h2dan"]
+emission_shape = 1
+emission_sphere_radius = 0.05
+direction = Vector3(0, 0, 1)
+spread = 3.58
+gravity = Vector3(0, 0.2, 0)
+initial_velocity_min = 0.1
+initial_velocity_max = 1.0
+color_ramp = SubResource("GradientTexture1D_866ma")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xn1td"]
+transparency = 1
+vertex_color_use_as_albedo = true
+albedo_color = Color(1, 1, 1, 0.588235)
+albedo_texture = ExtResource("2_hddxq")
+albedo_texture_force_srgb = true
+emission = Color(0.239216, 0, 0, 1)
+emission_energy_multiplier = 6.21
+disable_receive_shadows = true
+billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_57jot"]
+material = SubResource("StandardMaterial3D_xn1td")
+
+[node name="Fireball" type="CharacterBody3D" groups=["Projectiles"]]
+top_level = true
+motion_mode = 1
+slide_on_ceiling = false
+wall_min_slide_angle = 3.14159
+floor_max_angle = 0.0
+safe_margin = 0.01
+script = ExtResource("1_edqc4")
+
+[node name="CollisionShape" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, -0.361819)
+shape = SubResource("CapsuleShape3D_2rgwn")
+
+[node name="Particles" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.268784)
+lifetime = 0.5
+speed_scale = 2.0
+randomness = 0.3
+visibility_aabb = AABB(-4, -4, -3, 8, 8, 8)
+process_material = SubResource("ParticleProcessMaterial_h2dan")
+draw_pass_1 = SubResource("QuadMesh_57jot")
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("3_swmdu")
+max_db = 0.0
+doppler_tracking = 2
+
+[node name="AbandonmentTimer" type="Node" parent="."]
+script = ExtResource("4_vpebx")
+one_shot = true
+wait_ticks = 600
+
+[connection signal="timeout" from="AbandonmentTimer" to="." method="_on_abandonment_timer_timeout"]

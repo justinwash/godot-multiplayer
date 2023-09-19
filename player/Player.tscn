@@ -1,0 +1,70 @@
+[gd_scene load_steps=6 format=3 uid="uid://bjm128fnp6rbi"]
+
+[ext_resource type="Script" path="res://player/player.gd" id="1_hu8dc"]
+[ext_resource type="Script" path="res://addons/godot-rollback-netcode/NetworkTimer.gd" id="2_7g7tv"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_n11t7"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_22lvm"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_fs7ay"]
+top_radius = 0.2
+bottom_radius = 0.2
+height = 1.0
+
+[node name="Player" type="CharacterBody3D" groups=["network_sync"]]
+script = ExtResource("1_hu8dc")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_n11t7")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_22lvm")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+
+[node name="Gun" type="MeshInstance3D" parent="Camera3D"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.244295, -0.488845, -0.374647)
+mesh = SubResource("CylinderMesh_fs7ay")
+skeleton = NodePath("../..")
+
+[node name="ProjectileSpawnPoint" type="Marker3D" parent="Camera3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2445, -0.5, -1)
+
+[node name="AimPoint" type="Marker3D" parent="Camera3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -80)
+
+[node name="FireTimer" type="Node" parent="."]
+script = ExtResource("2_7g7tv")
+one_shot = true
+wait_ticks = 60
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Container" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="CanvasLayer/Container"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -5.0
+offset_top = -13.0
+offset_right = 5.0
+offset_bottom = 13.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "+"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[connection signal="timeout" from="FireTimer" to="." method="_on_fire_timer_timeout"]

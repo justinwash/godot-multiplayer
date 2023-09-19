@@ -1,8 +1,8 @@
 extends "res://addons/godot-rollback-netcode/MessageSerializer.gd"
 
 const input_path_map = {
-  "/root/Main/World/Player1": 1,
-  "/root/Main/World/Player2": 2,
+  "/root/Main/Players/Player1": 1,
+  "/root/Main/Players/Player2": 2,
 }
 
 var input_path_map_read := {}
@@ -16,6 +16,7 @@ enum HEADER_FLAGS {
   HAS_JUMP = 0x01,
   HAS_ROTATION = 0x01,
   HAS_CAMERA_ROTATION = 0x01,
+  HAS_FIRE = 0x01,
 }
 
 func serialize_input(all_input: Dictionary) -> PackedByteArray:
@@ -53,6 +54,16 @@ func serialize_input(all_input: Dictionary) -> PackedByteArray:
     
     if input.has("jump"):
       buffer.put_u8(1 if input["jump"] == true else 0)
+      
+    # fire
+    var fire_header = 0
+    if input.has("fire"):
+      fire_header |= HEADER_FLAGS.HAS_FIRE
+      
+    buffer.put_u8(fire_header)
+    
+    if input.has("fire"):
+      buffer.put_u8(1 if input["fire"] == true else 0)
     
     # rotation
     var rotation_header = 0
@@ -106,6 +117,10 @@ func unserialize_input(serialized: PackedByteArray) -> Dictionary:
   if jump_header & HEADER_FLAGS.HAS_JUMP:
     var jump = buffer.get_u8()
     input["jump"] = true if jump == 1 else false
+  var fire_header = buffer.get_u8()
+  if fire_header & HEADER_FLAGS.HAS_FIRE:
+    var fire = buffer.get_u8()
+    input["fire"] = true if fire == 1 else false
   var rotation_header = buffer.get_u8()
   if rotation_header & HEADER_FLAGS.HAS_ROTATION:
     input["rotation"] = Vector3(buffer.get_float(), buffer.get_float(), buffer.get_float())

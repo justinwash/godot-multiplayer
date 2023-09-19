@@ -33,9 +33,9 @@ func _save_state():
 func _load_state(data):
   global_position = data["position"]
   velocity = data["velocity"]
+
   
-  
-func _physics_process(_input):
+func _network_process(_input):
   _move_and_explode()
 
 

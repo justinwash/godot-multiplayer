@@ -43,7 +43,7 @@ particles_anim_loop = false
 [sub_resource type="QuadMesh" id="QuadMesh_57jot"]
 material = SubResource("StandardMaterial3D_xn1td")
 
-[node name="Fireball" type="CharacterBody3D" groups=["Projectiles"]]
+[node name="Fireball" type="CharacterBody3D" groups=["network_sync"]]
 top_level = true
 motion_mode = 1
 slide_on_ceiling = false

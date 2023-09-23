@@ -65,6 +65,10 @@ rollback/classes/message_serializer="res://message_serializer.gd"
 rollback/debug/message_bytes=512
 rollback/log_inspector/replay_match_scene_path="res://Main.tscn"
 
+[physics]
+
+3d/physics_engine="JoltPhysics3D"
+
 [rendering]
 
 global_illumination/voxel_gi/quality=1

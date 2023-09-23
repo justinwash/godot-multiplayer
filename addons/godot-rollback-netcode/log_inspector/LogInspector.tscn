@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" path="res://addons/godot-rollback-netcode/log_inspector/ProgressDialog.tscn" id="1"]
 [ext_resource type="Script" path="res://addons/godot-rollback-netcode/log_inspector/LogInspector.gd" id="2"]
-[ext_resource type="PackedScene" path="res://addons/godot-rollback-netcode/log_inspector/StateInputViewer.tscn" id="3"]
+[ext_resource type="PackedScene" uid="uid://c8s1sgdqw5yp2" path="res://addons/godot-rollback-netcode/log_inspector/StateInputViewer.tscn" id="3"]
 [ext_resource type="PackedScene" uid="uid://r3xm3e22i2qq" path="res://addons/godot-rollback-netcode/log_inspector/FrameViewer.tscn" id="4"]
 [ext_resource type="Script" path="res://addons/godot-rollback-netcode/log_inspector/ReplayServer.gd" id="5"]
 
@@ -15,7 +15,12 @@ script = ExtResource("2")
 
 [node name="FileDialog" type="FileDialog" parent="."]
 mode = 1
+title = "Open File(s)"
+position = Vector2i(0, 36)
 size = Vector2i(455, 162)
+visible = true
+ok_button_text = "Open"
+file_mode = 1
 access = 2
 filters = PackedStringArray("*.log ; Log files")
 
@@ -55,6 +60,11 @@ size_flags_horizontal = 3
 [node name="ModeButton" type="OptionButton" parent="MarginContainer/VBoxContainer/LoadToolbar"]
 layout_mode = 2
 size_flags_horizontal = 3
+item_count = 2
+popup/item_0/text = "STATE_INPUT"
+popup/item_0/id = 0
+popup/item_1/text = "FRAME"
+popup/item_1/id = 1
 
 [node name="Separator2" type="Control" parent="MarginContainer/VBoxContainer/LoadToolbar"]
 layout_mode = 2
@@ -138,7 +148,6 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="StateInputViewer" parent="MarginContainer/VBoxContainer" instance=ExtResource("3")]
-visible = false
 layout_mode = 2
 
 [node name="ReplayServer" type="Node" parent="."]

@@ -1,5 +1,8 @@
 extends Node
 
+const LOG_FILE_DIRECTORY = "user://detailed_logs"
+var logging_enabled := true
+
 @export var SERVER_ADDRESS = "127.0.0.1"
 @export var SERVER_PORT = 9999
 
@@ -15,26 +18,23 @@ func start():
   var peer = ENetMultiplayerPeer.new()
 
   var _peer = peer.create_server(SERVER_PORT)
-
+  
+  var _peer_connected =  multiplayer.peer_connected.connect(on_peer_connected)
+  var _peer_disconnected = multiplayer.peer_disconnected.connect(on_peer_disconnected)
+  var _sync_started = SyncManager.sync_started.connect(on_sync_started)
+  var _sync_stopped = SyncManager.sync_stopped.connect(on_sync_stopped)
+  var _sync_lost = SyncManager.sync_lost.connect(on_sync_lost)
+  var _sync_regained = SyncManager.sync_regained.connect(on_sync_regained)
+    
   if peer.host:
     host = true
-    var _peer_connected =  multiplayer.peer_connected.connect(on_peer_connected)
-    var _peer_disconnected = multiplayer.peer_disconnected.connect(on_peer_disconnected)
-    var _sync_started = SyncManager.sync_started.connect(on_sync_started)
-    var _sync_stopped = SyncManager.sync_stopped.connect(on_sync_stopped)
-    var _sync_lost = SyncManager.sync_lost.connect(on_sync_lost)
-    var _sync_regained = SyncManager.sync_regained.connect(on_sync_regained)
-    
     multiplayer.multiplayer_peer = peer
     print("Server listening on port: ", SERVER_PORT)
 
   else:
     _peer = null
     print("Server failed to start. Starting client")
-  
     _peer = peer.create_client(SERVER_ADDRESS, SERVER_PORT)
-    var _peer_connected =  multiplayer.peer_connected.connect(on_peer_connected)
-    var _peer_disconnected = multiplayer.peer_disconnected.connect(on_peer_disconnected)
     print("Client connecting to server at: ", SERVER_ADDRESS, ":", SERVER_PORT)
 
     multiplayer.multiplayer_peer = peer
@@ -87,11 +87,32 @@ func on_peer_disconnected(id):
 func on_sync_started():
   print("Sync started!")  
   
+  if logging_enabled && !SyncReplay.active:
+    var dir := DirAccess.open("user://")
+    if !dir.dir_exists(LOG_FILE_DIRECTORY):
+      dir.make_dir(LOG_FILE_DIRECTORY)
+    
+    var datetime = Time.get_datetime_dict_from_system()
+    var log_file_name = "%04d%02d%02d-%02d%02d%02d-peer-%d.log" % [
+      datetime.year,
+      datetime.month,
+      datetime.day,
+      datetime.hour,
+      datetime.minute,
+      datetime.second,
+      multiplayer.get_unique_id()
+    ]
+    
+    SyncManager.start_logging(LOG_FILE_DIRECTORY + "/" + log_file_name)
+
+  
 func on_sync_stopped():
   print("Sync stopped!")
   
+  
 func on_sync_lost():
   print("Sync lost!")
+  
   
 func on_sync_regained():
   print("Sync regained!")

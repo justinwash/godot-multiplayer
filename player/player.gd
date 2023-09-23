@@ -17,6 +17,8 @@ var fire_ready = true
 # Get the gravity from the project settings to be synced with RigidBody nodes.
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 
+var current_input = {}
+
 
 func _physics_process(delta):
   if multiplayer.get_unique_id() == get_multiplayer_authority() && multiplayer.get_unique_id() !=1:
@@ -39,13 +41,16 @@ func _get_local_input():
   input["rotation"] = rotation
   input["camera_rotation"] = camera.rotation
   
+  current_input = input.duplicate()
   return input
   
+
 func _predict_remote_input(previous_input, ticks_since_real_input):
   var input = previous_input.duplicate()
   input.erase("fire")
   
   return input
+
 
 func _network_process(input):
   if input.size() <= 0:
@@ -77,13 +82,15 @@ func _network_process(input):
   if input.get("fire") && fire_ready:
     fire()
   
+
 func _save_state():
   return {
     "position": position,
     "velocity": velocity,
-    "rotation": rotation,
-    "camera_rotation": camera.rotation
+    "rotation": current_input["rotation"] if current_input != {} else rotation,
+    "camera_rotation": current_input["camera_rotation"] if current_input != {} else camera.rotation
   }
+  
   
 func _load_state(state):
   position = state["position"]
@@ -91,12 +98,14 @@ func _load_state(state):
   rotation = state["rotation"]
   camera.rotation = state["camera_rotation"]
   
+  
 func _input(event):
   if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED && is_multiplayer_authority():
     if event is InputEventMouseMotion:
       rotate_y(deg_to_rad(-event.relative.x * 0.08))
       camera.rotate_x(deg_to_rad(-event.relative.y * 0.08))
       camera.rotation.x = clamp(camera.rotation.x, deg_to_rad(-89), deg_to_rad(89))
+
 
 func fire():
   fire_ready = false
@@ -107,6 +116,7 @@ func fire():
     velocity = projectile_velocity,
     owner = get_path()
     })
+
 
 func _on_fire_timer_timeout():
   fire_ready = true

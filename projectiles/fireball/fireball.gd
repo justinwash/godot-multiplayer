@@ -17,6 +17,7 @@ var already_exploded = false
 
 var projectile_owner
 
+
 func _network_spawn(data: Dictionary):
   position = data["position"]
   velocity = data["velocity"] * speed
@@ -55,9 +56,3 @@ func _explode():
 
 func _on_abandonment_timer_timeout():
   SyncManager.despawn(self)
-
-
-func receive_snapshot(rocket_snapshot):
-  if rocket_snapshot.should_explode && !already_exploded:
-    _explode()
-  global_position = global_position.lerp(rocket_snapshot.position, 0.1)

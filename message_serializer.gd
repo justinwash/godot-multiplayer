@@ -13,10 +13,11 @@ func _init() -> void:
 
 enum HEADER_FLAGS {
   HAS_INPUT_VECTOR = 0x01,
-  HAS_JUMP = 0x01,
-  HAS_ROTATION = 0x01,
-  HAS_CAMERA_ROTATION = 0x01,
-  HAS_FIRE = 0x01,
+  HAS_JUMP = 0x02,
+  HAS_ROTATION = 0x04,
+  HAS_CAMERA_ROTATION = 0x08,
+  HAS_FIRE = 0x10,
+  HAS_MOUSE_MOVEMENTS = 0x20
 }
 
 func serialize_input(all_input: Dictionary) -> PackedByteArray:
@@ -90,6 +91,15 @@ func serialize_input(all_input: Dictionary) -> PackedByteArray:
       buffer.put_float(camera_rotation.x)
       buffer.put_float(camera_rotation.y)
       buffer.put_float(camera_rotation.z)
+      
+    # mouse_movements
+    if input.has("mouse_movements") && input["mouse_movements"].size() > 0:
+      for event in input["mouse_movements"]:
+        var mouse_movements_header = 0
+        mouse_movements_header |= HEADER_FLAGS.HAS_MOUSE_MOVEMENTS
+        buffer.put_u8(mouse_movements_header)
+        buffer.put_32(event.relative_x)
+        buffer.put_32(event.relative_y)
   
   buffer.resize(buffer.get_position())
   return buffer.data_array
@@ -127,6 +137,11 @@ func unserialize_input(serialized: PackedByteArray) -> Dictionary:
   var camera_rotation_header = buffer.get_u8()
   if camera_rotation_header & HEADER_FLAGS.HAS_CAMERA_ROTATION:
     input["camera_rotation"] = Vector3(buffer.get_float(), buffer.get_float(), buffer.get_float())
+  while buffer.get_u8() & HEADER_FLAGS.HAS_MOUSE_MOVEMENTS:
+    if !input.get("mouse_movements"):
+      input["mouse_movements"] = [{ "relative_x": buffer.get_32(), "relative_y": buffer.get_32() }]
+    else:
+      input["mouse_movements"].append({ "relative_x": buffer.get_32(), "relative_y": buffer.get_32() })
     
   all_input[path] = input
   return all_input

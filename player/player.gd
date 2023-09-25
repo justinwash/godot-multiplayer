@@ -27,6 +27,8 @@ var last_camera_rotation
 
 var start_rotation = null
 
+var allow_mouse_input = false
+
 
 func _process(delta):
   rotation_helper.global_position = global_position
@@ -48,9 +50,7 @@ func _get_local_input():
     
   if Input.is_action_just_pressed("fire"):
     input["fire"] = true
-  
-  input["rotation"] = rotation
-  input["camera_rotation"] = camera.rotation
+    input["global_camera_rotation"] = camera.global_rotation
   
   if mouse_movements.size() > 0:
     input["mouse_movements"] = mouse_movements.duplicate()
@@ -67,16 +67,11 @@ func _predict_remote_input(previous_input, ticks_since_real_input):
 
 
 func _network_process(input):
+  allow_mouse_input = true
   if input.size() <= 0:
     return
     
   velocity = Vector3(0, velocity.y, 0)
-  
-#  if !is_multiplayer_authority():
-#    if input.get("rotation"):
-#      rotation = input["rotation"]
-#    if input.get("camera_rotation"):
-#      camera.rotation = input["camera_rotation"]
 
   if input.get("mouse_movements"):
     for event in input["mouse_movements"]:
@@ -98,17 +93,17 @@ func _network_process(input):
       velocity.x = direction.x * SPEED
       velocity.z = direction.z * SPEED
       
-  velocity = snapped(velocity, Vector3(0.0001, 0.0001, 0.0001))
-  rotation = snapped(rotation, Vector3(0.0001, 0.0001, 0.0001))
-  rotation_helper.rotation = snapped(rotation_helper.rotation, Vector3(0.0001, 0.0001, 0.0001))
-  camera.rotation = snapped(camera.rotation, Vector3(0.0001, 0.0001, 0.0001))
+  velocity = snap(velocity)
+  rotation = snap(rotation)
+  rotation_helper.rotation = snap(rotation_helper.rotation)
+  camera.rotation = snap(camera.rotation)
   
   move_and_slide()
   
-  position = snapped(position, Vector3(0.0001, 0.0001, 0.0001))
+  position = snap(position)
   
-  if input.get("fire") && fire_ready:
-    fire()
+  if input.get("fire") && input.get("global_camera_rotation") && fire_ready:
+    fire(input["global_camera_rotation"])
 
 
 func _save_state():
@@ -117,7 +112,7 @@ func _save_state():
     "velocity": velocity,
     "rotation": rotation,
     "_rotation_helper_rotation": rotation_helper.rotation,
-    "_camera_rotation": camera.rotation
+    "_camera_rotation": camera.global_rotation
   }
   
   
@@ -126,11 +121,11 @@ func _load_state(state):
   velocity = state["velocity"]
   rotation = state["rotation"]
   rotation_helper.rotation = state["_rotation_helper_rotation"]
-  camera.rotation = state["_camera_rotation"]
+  camera.global_rotation = state["_camera_rotation"]
   
   
 func _input(event):
-  if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED && is_multiplayer_authority():
+  if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED && is_multiplayer_authority() && allow_mouse_input:
     if event is InputEventMouseMotion:
       mouse_movements.append({"relative_x": event.relative.x, "relative_y": event.relative.y})
       rotation_helper.rotate_y(deg_to_rad(-event.relative.x * 0.08))
@@ -138,16 +133,31 @@ func _input(event):
       camera.rotation.x = clamp(camera.rotation.x, deg_to_rad(-89), deg_to_rad(89))
 
 
-func fire():
+func fire(camera_rotation):
+  var old_camera_rotation = camera.global_rotation
+  camera.global_rotation = camera_rotation
+  
   fire_ready = false
   _fire_timer.start()
+  
   var projectile_velocity = (_aim_point.global_position - _projectile_spawn_point.global_position).normalized()
   SyncManager.spawn("fireball", _projectiles_node, fireball_scene, { 
-    position = _projectile_spawn_point.global_position, 
-    velocity = projectile_velocity,
+    position = snap(_projectile_spawn_point.global_position), 
+    velocity = snap(projectile_velocity),
     owner = get_path()
     })
+    
+  camera.global_rotation = old_camera_rotation
 
 
 func _on_fire_timer_timeout():
   fire_ready = true
+  
+
+func snap(value):
+  match typeof(value):
+    TYPE_VECTOR3:
+      return snapped(value, Vector3(0.0001, 0.0001, 0.0001))
+    TYPE_FLOAT:
+      return snapped(value, 0.0001)
+  

@@ -38,10 +38,13 @@ class InputData:
     
     var ret := {}
     for key in keys:
-      var val = d[key]
-      if val is Dictionary:
-        val = sort_dictionary(val)
-      ret[key] = val
+      if key.has("_"):
+        d.erase(key)
+      else:  
+        var val = d[key]
+        if val is Dictionary:
+          val = sort_dictionary(val)
+        ret[key] = val
     
     return ret
   

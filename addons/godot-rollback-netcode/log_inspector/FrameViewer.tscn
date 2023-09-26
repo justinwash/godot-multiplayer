@@ -98,6 +98,7 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="SettingsDialog" parent="." instance=ExtResource("3")]
+visible = false
 
 [connection signal="value_changed" from="VBoxContainer/HBoxContainer/Time" to="." method="_on_Time_value_changed"]
 [connection signal="pressed" from="VBoxContainer/HBoxContainer/StartButton" to="." method="_on_StartButton_pressed"]

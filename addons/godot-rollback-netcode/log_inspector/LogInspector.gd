@@ -44,6 +44,8 @@ func _ready() -> void:
   
   file_dialog.current_dir = OS.get_user_data_dir() + "/detailed_logs/"
   
+  _on_ModeButton_item_selected(0)
+  
   # Show and make full screen if the scene is being run on its own.
   if get_parent() == get_tree().root:
     visible = true

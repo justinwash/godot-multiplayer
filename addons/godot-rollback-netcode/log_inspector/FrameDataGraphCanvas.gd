@@ -127,7 +127,7 @@ func _draw_peer(peer_id: int, peer_rect: Rect2, draw_data: Dictionary) -> void:
       Vector2(extended_peer_rect.position.x + frame.start_time - absolute_start_time, extended_peer_rect.position.y),
       Vector2(frame.end_time - frame.start_time, extended_peer_rect.size.y))
     if frame_rect.intersects(extended_peer_rect):
-      frame_rect = frame_rect.clip(extended_peer_rect)
+      frame_rect = frame_rect.intersection(extended_peer_rect)
       if frame_rect.size.x == 0:
         frame_rect.size.x = 1
       

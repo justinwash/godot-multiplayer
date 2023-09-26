@@ -24,7 +24,6 @@ class Mismatch:
 var mismatches := []
 
 func find_mismatches(local_state: Dictionary, remote_state: Dictionary) -> void:
-  print("you can print stuff at least")
   _find_mismatches_recursive(
     _clean_up_state(local_state),
     _clean_up_state(remote_state))

@@ -68,10 +68,15 @@ func _predict_remote_input(previous_input, ticks_since_real_input):
 
 func _network_process(input):
   allow_mouse_input = true
-  if input.size() <= 0:
-    return
-    
+  
   velocity = Vector3(0, velocity.y, 0)
+  
+  if not is_on_floor():
+    velocity.y -= 1
+    
+  if input.size() <= 0:
+    move_and_slide()
+    return
 
   if input.get("mouse_movements"):
     for event in input["mouse_movements"]:
@@ -81,8 +86,6 @@ func _network_process(input):
         camera.rotate_x(deg_to_rad(-event.relative_y * 0.08))
         camera.rotation.x = clamp(camera.rotation.x, deg_to_rad(-89), deg_to_rad(89))
     
-  if not is_on_floor():
-    velocity.y -= 1
     
   if input.get("jump") and is_on_floor():
     velocity.y = JUMP_VELOCITY

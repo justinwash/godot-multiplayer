@@ -15,9 +15,10 @@ enum HEADER_FLAGS {
   HAS_INPUT_VECTOR = 0x01,
   HAS_JUMP = 0x02,
   HAS_ROTATION = 0x04,
-  HAS_GLOBAL_CAMERA_ROTATION = 0x08,
+  HAS_CAMERA_GLOBAL_ROTATION = 0x08,
   HAS_FIRE = 0x10,
-  HAS_MOUSE_MOVEMENTS = 0x20
+  HAS_MOUSE_MOVEMENTS = 0x20,
+  HAS_ROTATION_HELPER_GLOBAL_ROTATION = 0x40
 }
 
 func serialize_input(all_input: Dictionary) -> PackedByteArray:
@@ -66,27 +67,31 @@ func serialize_input(all_input: Dictionary) -> PackedByteArray:
     if input.has("fire"):
       buffer.put_u8(1 if input["fire"] == true else 0)
     
-    # camera_rotation
-    var global_camera_rotation_header = 0
-    if input.has("global_camera_rotation"):
-      global_camera_rotation_header |= HEADER_FLAGS.HAS_GLOBAL_CAMERA_ROTATION
+    # camera_global_rotation
+    var camera_global_rotation_header = 0
+    if input.has("_camera_global_rotation"):
+      camera_global_rotation_header |= HEADER_FLAGS.HAS_CAMERA_GLOBAL_ROTATION
       
-    buffer.put_u8(global_camera_rotation_header)
+    buffer.put_u8(camera_global_rotation_header)
     
-    if input.has("global_camera_rotation"):
-      var global_camera_rotation = input["global_camera_rotation"]
-      buffer.put_float(global_camera_rotation.x)
-      buffer.put_float(global_camera_rotation.y)
-      buffer.put_float(global_camera_rotation.z)
+    if input.has("_camera_global_rotation"):
+      var camera_global_rotation = input["_camera_global_rotation"]
+      buffer.put_float(camera_global_rotation.x)
+      buffer.put_float(camera_global_rotation.y)
+      buffer.put_float(camera_global_rotation.z)
       
-    # mouse_movements
-    if input.has("mouse_movements") && input["mouse_movements"].size() > 0:
-      for event in input["mouse_movements"]:
-        var mouse_movements_header = 0
-        mouse_movements_header |= HEADER_FLAGS.HAS_MOUSE_MOVEMENTS
-        buffer.put_u8(mouse_movements_header)
-        buffer.put_32(event.relative_x)
-        buffer.put_32(event.relative_y)
+    # rotation_helper_global_rotation
+    var rotation_helper_global_rotation_header = 0
+    if input.has("_rotation_helper_global_rotation"):
+      rotation_helper_global_rotation_header |= HEADER_FLAGS.HAS_ROTATION_HELPER_GLOBAL_ROTATION
+      
+    buffer.put_u8(rotation_helper_global_rotation_header)
+    
+    if input.has("_rotation_helper_global_rotation"):
+      var rotation_helper_global_rotation = input["_rotation_helper_global_rotation"]
+      buffer.put_float(rotation_helper_global_rotation.x)
+      buffer.put_float(rotation_helper_global_rotation.y)
+      buffer.put_float(rotation_helper_global_rotation.z)
   
   buffer.resize(buffer.get_position())
   return buffer.data_array
@@ -121,16 +126,14 @@ func unserialize_input(serialized: PackedByteArray) -> Dictionary:
     var fire = buffer.get_u8()
     input["fire"] = true if fire == 1 else false
     
-  var global_camera_rotation_header = buffer.get_u8()
-  if global_camera_rotation_header & HEADER_FLAGS.HAS_GLOBAL_CAMERA_ROTATION:
-    input["global_camera_rotation"] = Vector3(buffer.get_float(), buffer.get_float(), buffer.get_float())
-  
-  while buffer.get_u8() & HEADER_FLAGS.HAS_MOUSE_MOVEMENTS:
-    if !input.get("mouse_movements"):
-      input["mouse_movements"] = [{ "relative_x": buffer.get_32(), "relative_y": buffer.get_32() }]
-    else:
-      input["mouse_movements"].append({ "relative_x": buffer.get_32(), "relative_y": buffer.get_32() })
-    
+  var camera_global_rotation_header = buffer.get_u8()
+  if camera_global_rotation_header & HEADER_FLAGS.HAS_CAMERA_GLOBAL_ROTATION:
+    input["_camera_global_rotation"] = Vector3(buffer.get_float(), buffer.get_float(), buffer.get_float())
+
+  var rotation_helper_global_rotation_header = buffer.get_u8()
+  if rotation_helper_global_rotation_header & HEADER_FLAGS.HAS_ROTATION_HELPER_GLOBAL_ROTATION:
+    input["_rotation_helper_global_rotation"] = Vector3(buffer.get_float(), buffer.get_float(), buffer.get_float())
+     
   all_input[path] = input
   return all_input
   

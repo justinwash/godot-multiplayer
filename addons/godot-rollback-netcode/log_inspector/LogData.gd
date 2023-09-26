@@ -38,7 +38,7 @@ class InputData:
     
     var ret := {}
     for key in keys:
-      if key.has("_"):
+      if typeof(key) != TYPE_INT && key.has("_"):
         d.erase(key)
       else:  
         var val = d[key]

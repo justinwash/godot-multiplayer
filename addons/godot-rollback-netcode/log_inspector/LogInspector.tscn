@@ -18,7 +18,6 @@ mode = 1
 title = "Open File(s)"
 position = Vector2i(0, 36)
 size = Vector2i(455, 162)
-visible = true
 ok_button_text = "Open"
 file_mode = 1
 access = 2

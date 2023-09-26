@@ -61,8 +61,11 @@ fire={
 [network]
 
 rollback/limits/min_lag_to_regain_sync=10
+rollback/limits/max_state_mismatch_count=50
 rollback/classes/message_serializer="res://message_serializer.gd"
 rollback/debug/message_bytes=1400
+rollback/debug/check_message_serializer_roundtrip=true
+rollback/debug/check_local_state_consistency=true
 rollback/log_inspector/replay_match_scene_path="res://Main.tscn"
 
 [physics]

@@ -729,6 +729,19 @@ func _do_tick(is_rollback: bool = false) -> bool:
   
   _call_network_process(input_frame)
   
+  if is_rollback:
+    print('Stepping physics engine due to rollback')
+    Engine.get_singleton("PhysicsServer3D").step(get_physics_process_delta_time())
+    
+  var p1 = get_node("/root/Main/Players/Player1")
+  var p2 = get_node("/root/Main/Players/Player2")  
+  p1.position = snapped(p1.position, Vector3(0.0001, 0.0001, 0.0001))
+  p2.position = snapped(p2.position, Vector3(0.0001, 0.0001, 0.0001))
+  p1.rotation = snapped(p1.rotation, Vector3(0.0001, 0.0001, 0.0001))
+  p2.rotation = snapped(p2.rotation, Vector3(0.0001, 0.0001, 0.0001))
+  p1.velocity = snapped(p1.velocity, Vector3(0.0001, 0.0001, 0.0001))
+  p2.velocity = snapped(p2.velocity, Vector3(0.0001, 0.0001, 0.0001))
+  
   # If the game was stopped during the last network process, then we return
   # false here, to indicate that a full tick didn't complete and we need to
   # abort.

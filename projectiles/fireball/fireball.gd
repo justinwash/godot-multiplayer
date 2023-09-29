@@ -19,16 +19,16 @@ var projectile_owner
 
 
 func _network_spawn(data: Dictionary):
-  position = snap(data["position"])
-  velocity = snap(data["velocity"]) * speed
+  position = data["position"]
+  velocity = data["velocity"] * speed
   add_collision_exception_with(get_node(data["owner"]))
   _abandonment_timer.start()
   
   
 func _save_state():
   return {
-    "position": snap(position),
-    "velocity": snap(velocity)
+    "position": position,
+    "velocity": velocity
   }
   
 func _load_state(data):
@@ -43,8 +43,8 @@ func _network_process(_input):
 func _move_and_explode():
   var exploded_this_tick = move_and_slide()
   
-  position = snap(position)
-  velocity = snap(velocity)
+  position = position
+  velocity = velocity
   
   if exploded_this_tick:
     should_explode = true

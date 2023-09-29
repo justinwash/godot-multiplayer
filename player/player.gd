@@ -95,15 +95,8 @@ func _network_process(input):
     if direction:
       velocity.x = direction.x * SPEED
       velocity.z = direction.z * SPEED
-      
-  velocity = snap(velocity)
-  rotation = snap(rotation)
-  rotation_helper.rotation = snap(rotation_helper.rotation)
-  camera.rotation = snap(camera.rotation)
   
   move_and_slide()
-  
-  position = snap(position)
   
   if input.get("fire") && input.get("global_camera_rotation") && fire_ready:
     fire(input["global_camera_rotation"])
@@ -145,8 +138,8 @@ func fire(camera_rotation):
   
   var projectile_velocity = (_aim_point.global_position - _projectile_spawn_point.global_position).normalized()
   SyncManager.spawn("fireball", _projectiles_node, fireball_scene, { 
-    position = snap(_projectile_spawn_point.global_position), 
-    velocity = snap(projectile_velocity),
+    position = _projectile_spawn_point.global_position, 
+    velocity = projectile_velocity,
     owner = get_path()
     })
     

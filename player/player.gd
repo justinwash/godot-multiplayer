@@ -2,7 +2,7 @@ extends CharacterBody3D
 
 @onready var rotation_helper = $RotationHelper
 @onready var camera: Camera3D = $RotationHelper/Camera3D
-@onready var _fire_timer: NetworkTimer = $FireTimer
+@onready var _fire_timer: Timer = $FireTimer
 @onready var _aim_point: Marker3D = $RotationHelper/Camera3D/AimPoint
 @onready var _projectile_spawn_point: Marker3D = $RotationHelper/Camera3D/ProjectileSpawnPoint
 @onready var _projectiles_node: Node3D = get_node("/root/Main/Projectiles")
@@ -40,6 +40,9 @@ func _process(delta):
 func _physics_process(delta):
   if multiplayer.get_unique_id() == get_multiplayer_authority() && multiplayer.get_unique_id() !=1:
     camera.current = true
+  
+  var input = _get_local_input()
+  _network_process(input)
   
   
 func _get_local_input():

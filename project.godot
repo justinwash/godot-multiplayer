@@ -15,15 +15,9 @@ run/main_scene="res://Main.tscn"
 config/features=PackedStringArray("4.1", "Forward Plus")
 config/icon="res://icon.svg"
 
-[autoload]
-
-SyncManager="*res://addons/godot-rollback-netcode/SyncManager.gd"
-SyncDebugger="*res://addons/godot-rollback-netcode/SyncDebugger.gd"
-SyncReplay="*res://addons/godot-rollback-netcode/SyncReplay.gd"
-
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/godot-rollback-netcode/plugin.cfg")
+enabled=PackedStringArray()
 
 [input]
 
@@ -65,6 +59,10 @@ rollback/classes/message_serializer="res://message_serializer.gd"
 rollback/debug/message_bytes=1400
 rollback/debug/check_local_state_consistency=true
 rollback/log_inspector/replay_match_scene_path="res://Main.tscn"
+
+[physics]
+
+3d/physics_engine="JoltPhysics3D"
 
 [rendering]
 

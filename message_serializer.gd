@@ -17,7 +17,9 @@ enum HEADER_FLAGS {
   HAS_ROTATION = 0x04,
   HAS_GLOBAL_CAMERA_ROTATION = 0x08,
   HAS_FIRE = 0x10,
-  HAS_MOUSE_MOVEMENTS = 0x20
+  HAS_MOUSE_MOVEMENTS = 0x20,
+  HAS_FIRE_POSITION = 0x40,
+  HAS_FIRE_ROTATION = 0x80
 }
 
 func serialize_input(all_input: Dictionary) -> PackedByteArray:
@@ -79,6 +81,32 @@ func serialize_input(all_input: Dictionary) -> PackedByteArray:
       buffer.put_float(global_camera_rotation.y)
       buffer.put_float(global_camera_rotation.z)
       
+    # fire_position
+    var fire_position_header = 0
+    if input.has("fire_position"):
+      fire_position_header |= HEADER_FLAGS.HAS_FIRE_POSITION
+      
+    buffer.put_u8(fire_position_header)
+    
+    if input.has("fire_position"):
+      var fire_position = input["fire_position"]
+      buffer.put_float(fire_position.x)
+      buffer.put_float(fire_position.y)
+      buffer.put_float(fire_position.z)
+      
+    # fire_rotation
+    var fire_rotation_header = 0
+    if input.has("fire_rotation"):
+      fire_rotation_header |= HEADER_FLAGS.HAS_FIRE_ROTATION
+      
+    buffer.put_u8(fire_rotation_header)
+    
+    if input.has("fire_rotation"):
+      var fire_rotation = input["fire_rotation"]
+      buffer.put_float(fire_rotation.x)
+      buffer.put_float(fire_rotation.y)
+      buffer.put_float(fire_rotation.z)
+      
     # mouse_movements
     if input.has("mouse_movements") && input["mouse_movements"].size() > 0:
       for event in input["mouse_movements"]:
@@ -124,6 +152,14 @@ func unserialize_input(serialized: PackedByteArray) -> Dictionary:
   var global_camera_rotation_header = buffer.get_u8()
   if global_camera_rotation_header & HEADER_FLAGS.HAS_GLOBAL_CAMERA_ROTATION:
     input["global_camera_rotation"] = Vector3(buffer.get_float(), buffer.get_float(), buffer.get_float())
+    
+  var fire_position_header = buffer.get_u8()
+  if fire_position_header & HEADER_FLAGS.HAS_FIRE_POSITION:
+    input["fire_position"] = Vector3(buffer.get_float(), buffer.get_float(), buffer.get_float())
+    
+  var fire_rotation_header = buffer.get_u8()
+  if fire_rotation_header & HEADER_FLAGS.HAS_FIRE_ROTATION:
+    input["fire_rotation"] = Vector3(buffer.get_float(), buffer.get_float(), buffer.get_float())
   
   while buffer.get_u8() & HEADER_FLAGS.HAS_MOUSE_MOVEMENTS:
     if !input.get("mouse_movements"):

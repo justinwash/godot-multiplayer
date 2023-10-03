@@ -29,9 +29,13 @@ var start_rotation = null
 
 var allow_mouse_input = false
 
+var health = 100
+
 
 func _process(delta):
-  rotation_helper.global_position = global_position
+  $CanvasLayer/Container/Player1Health.text = str(get_node("/root/Main/Players/Player1").health)
+  $CanvasLayer/Container/Player2Health.text = str(get_node("/root/Main/Players/Player2").health)
+
 
 func _physics_process(delta):
   if multiplayer.get_unique_id() == get_multiplayer_authority() && multiplayer.get_unique_id() !=1:
@@ -50,7 +54,6 @@ func _get_local_input():
     
   if Input.is_action_just_pressed("fire"):
     input["fire"] = true
-    input["global_camera_rotation"] = camera.global_rotation
   
   if mouse_movements.size() > 0:
     input["mouse_movements"] = mouse_movements.duplicate()
@@ -67,6 +70,8 @@ func _predict_remote_input(previous_input, ticks_since_real_input):
 
 
 func _network_process(input):
+  rotation_helper.global_position = global_position
+  
   allow_mouse_input = true
   
   velocity = Vector3(0, velocity.y, 0)
@@ -81,11 +86,9 @@ func _network_process(input):
   if input.get("mouse_movements"):
     for event in input["mouse_movements"]:
       rotate_y(deg_to_rad(-event.relative_x * 0.08))
-      if !is_multiplayer_authority():
-        rotation_helper.rotate_y(deg_to_rad(-event.relative_x * 0.08))
-        camera.rotate_x(deg_to_rad(-event.relative_y * 0.08))
-        camera.rotation.x = clamp(camera.rotation.x, deg_to_rad(-89), deg_to_rad(89))
-    
+      rotation_helper.rotate_y(deg_to_rad(-event.relative_x * 0.08))
+      camera.rotate_x(deg_to_rad(-event.relative_y * 0.08))
+      camera.rotation.x = clamp(camera.rotation.x, deg_to_rad(-89), deg_to_rad(89))
     
   if input.get("jump") and is_on_floor():
     velocity.y = JUMP_VELOCITY
@@ -98,8 +101,8 @@ func _network_process(input):
   
   move_and_slide()
   
-  if input.get("fire") && input.get("global_camera_rotation") && fire_ready:
-    fire(input["global_camera_rotation"])
+  if input.get("fire") && fire_ready:
+    fire()
 
 
 func _save_state():
@@ -107,8 +110,10 @@ func _save_state():
     "position": position,
     "velocity": velocity,
     "rotation": rotation,
-    "_rotation_helper_rotation": rotation_helper.rotation,
-    "_camera_rotation": camera.global_rotation
+    "rotation_helper_rotation": rotation_helper.rotation,
+    "camera_rotation": camera.rotation,
+    "health": health,
+    "mouse_movements": mouse_movements.duplicate()
   }
   
   
@@ -116,23 +121,19 @@ func _load_state(state):
   position = state["position"]
   velocity = state["velocity"]
   rotation = state["rotation"]
-  rotation_helper.rotation = state["_rotation_helper_rotation"]
-  camera.global_rotation = state["_camera_rotation"]
+  rotation_helper.rotation = state["rotation_helper_rotation"]
+  camera.rotation = state["camera_rotation"]
+  health = state["health"]
+  mouse_movements = state["mouse_movements"]
   
   
 func _input(event):
   if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED && is_multiplayer_authority() && allow_mouse_input:
     if event is InputEventMouseMotion:
       mouse_movements.append({"relative_x": event.relative.x, "relative_y": event.relative.y})
-      rotation_helper.rotate_y(deg_to_rad(-event.relative.x * 0.08))
-      camera.rotate_x(deg_to_rad(-event.relative.y * 0.08))
-      camera.rotation.x = clamp(camera.rotation.x, deg_to_rad(-89), deg_to_rad(89))
 
 
-func fire(camera_rotation):
-  var old_camera_rotation = camera.global_rotation
-  camera.global_rotation = camera_rotation
-  
+func fire():
   fire_ready = false
   _fire_timer.start()
   
@@ -142,18 +143,8 @@ func fire(camera_rotation):
     velocity = projectile_velocity,
     owner = get_path()
     })
-    
-  camera.global_rotation = old_camera_rotation
 
 
 func _on_fire_timer_timeout():
   fire_ready = true
-  
-
-func snap(value):
-  match typeof(value):
-    TYPE_VECTOR3:
-      return snapped(value, Vector3(0.0001, 0.0001, 0.0001))
-    TYPE_FLOAT:
-      return snapped(value, 0.0001)
   

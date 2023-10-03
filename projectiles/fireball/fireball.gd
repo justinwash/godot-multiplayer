@@ -12,8 +12,7 @@ var explosion_scene = preload("res://effects/Explosion.tscn")
 
 var speed = 30
 
-var should_explode = false
-var already_exploded = false
+var exploded = false
 
 var projectile_owner
 
@@ -28,29 +27,22 @@ func _network_spawn(data: Dictionary):
 func _save_state():
   return {
     "position": position,
-    "velocity": velocity
+    "velocity": velocity,
+    "exploded": exploded
   }
   
 func _load_state(data):
   position = data["position"]
   velocity = data["velocity"]
+  exploded = data["exploded"]
 
   
 func _network_process(_input):
-  _move_and_explode()
-
-
-func _move_and_explode():
-  var exploded_this_tick = move_and_slide()
+  if !exploded:
+    exploded = move_and_slide()
   
-  position = position
-  velocity = velocity
-  
-  if exploded_this_tick:
-    should_explode = true
-  if should_explode && !already_exploded:
-    already_exploded = true
-    _explode()
+    if exploded:
+      _explode()
 
 
 func _explode():
@@ -61,10 +53,3 @@ func _explode():
 func _on_abandonment_timer_timeout():
   SyncManager.despawn(self)
   
-
-func snap(value):
-  match typeof(value):
-    TYPE_VECTOR3:
-      return snapped(value, Vector3(0.0001, 0.0001, 0.0001))
-    TYPE_FLOAT:
-      return snapped(value, 0.0001)

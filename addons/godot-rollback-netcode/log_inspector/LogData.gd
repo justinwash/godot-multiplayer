@@ -38,9 +38,9 @@ class InputData:
     
     var ret := {}
     for key in keys:
-      if key.has("_"):
+      if key.begins_with("_"):
         d.erase(key)
-      else:  
+      else: 
         var val = d[key]
         if val is Dictionary:
           val = sort_dictionary(val)

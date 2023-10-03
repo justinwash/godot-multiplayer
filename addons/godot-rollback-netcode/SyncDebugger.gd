@@ -83,7 +83,8 @@ func _on_SyncManager_state_loaded(rollback_ticks: int) -> void:
   pass
 
 func _on_SyncManager_tick_finished(is_rollback: bool) -> void:
-  pass
+  if is_rollback:
+    Engine.get_singleton("PhysicsServer3D").step(get_physics_process_delta_time())
 
 func _unhandled_input(event: InputEvent) -> void:
   var action_pressed = event.is_action_pressed("sync_debug")

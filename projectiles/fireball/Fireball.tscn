@@ -1,9 +1,8 @@
-[gd_scene load_steps=11 format=3 uid="uid://dj3qgs3o8lp2"]
+[gd_scene load_steps=10 format=3 uid="uid://dj3qgs3o8lp2"]
 
 [ext_resource type="Script" path="res://projectiles/fireball/fireball.gd" id="1_edqc4"]
 [ext_resource type="Texture2D" uid="uid://cwft2cii4la0c" path="res://sprites/fire_particle.png" id="2_hddxq"]
 [ext_resource type="AudioStream" uid="uid://dqfgi5s0kw21a" path="res://sounds/rocket_loop.mp3" id="3_swmdu"]
-[ext_resource type="Script" path="res://addons/godot-rollback-netcode/NetworkTimer.gd" id="4_vpebx"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_2rgwn"]
 radius = 0.283474
@@ -70,9 +69,8 @@ stream = ExtResource("3_swmdu")
 max_db = 0.0
 doppler_tracking = 2
 
-[node name="AbandonmentTimer" type="Node" parent="."]
-script = ExtResource("4_vpebx")
+[node name="AbandonmentTimer" type="Timer" parent="."]
+wait_time = 10.0
 one_shot = true
-wait_ticks = 600
 
 [connection signal="timeout" from="AbandonmentTimer" to="." method="_on_abandonment_timer_timeout"]

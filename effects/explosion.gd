@@ -35,4 +35,5 @@ func load_state(state):
 
 
 func _on_timer_timeout():
-  SyncManager.despawn(self)
+  pass
+  #SyncManager.despawn(self)

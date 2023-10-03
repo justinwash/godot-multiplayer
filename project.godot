@@ -66,10 +66,6 @@ rollback/debug/message_bytes=1400
 rollback/debug/check_local_state_consistency=true
 rollback/log_inspector/replay_match_scene_path="res://Main.tscn"
 
-[physics]
-
-3d/physics_engine="JoltPhysics3D"
-
 [rendering]
 
 global_illumination/voxel_gi/quality=1

@@ -1,8 +1,5 @@
 extends Node
 
-const LOG_FILE_DIRECTORY = "user://detailed_logs"
-var logging_enabled := true
-
 @export var SERVER_ADDRESS = "127.0.0.1"
 @export var SERVER_PORT = 9999
 
@@ -21,10 +18,10 @@ func start():
   
   var _peer_connected =  multiplayer.peer_connected.connect(on_peer_connected)
   var _peer_disconnected = multiplayer.peer_disconnected.connect(on_peer_disconnected)
-  var _sync_started = SyncManager.sync_started.connect(on_sync_started)
-  var _sync_stopped = SyncManager.sync_stopped.connect(on_sync_stopped)
-  var _sync_lost = SyncManager.sync_lost.connect(on_sync_lost)
-  var _sync_regained = SyncManager.sync_regained.connect(on_sync_regained)
+#  var _sync_started = SyncManager.sync_started.connect(on_sync_started)
+#  var _sync_stopped = SyncManager.sync_stopped.connect(on_sync_stopped)
+#  var _sync_lost = SyncManager.sync_lost.connect(on_sync_lost)
+#  var _sync_regained = SyncManager.sync_regained.connect(on_sync_regained)
     
   if peer.host:
     host = true
@@ -40,7 +37,7 @@ func start():
     multiplayer.multiplayer_peer = peer
 
 func on_peer_connected(id):
-  SyncManager.add_peer(id)
+  #SyncManager.add_peer(id)
   print(id, " connected!")
   
   if !host && id != 1:
@@ -76,34 +73,16 @@ func on_peer_connected(id):
       print('peer failed to connect. Dying dead.')
       get_tree().quit()
       
-    SyncManager.start()
+    #SyncManager.start()
   
   
 func on_peer_disconnected(id):
-  SyncManager.remove_peer(id)
+  #SyncManager.remove_peer(id)
   print(id, " disconnected!")
   
   
 func on_sync_started():
-  print("Sync started!")  
-  
-  if logging_enabled && !SyncReplay.active:
-    var dir := DirAccess.open("user://")
-    if !dir.dir_exists(LOG_FILE_DIRECTORY):
-      dir.make_dir(LOG_FILE_DIRECTORY)
-    
-    var datetime = Time.get_datetime_dict_from_system()
-    var log_file_name = "%04d%02d%02d-%02d%02d%02d-peer-%d.log" % [
-      datetime.year,
-      datetime.month,
-      datetime.day,
-      datetime.hour,
-      datetime.minute,
-      datetime.second,
-      multiplayer.get_unique_id()
-    ]
-    
-    SyncManager.start_logging(LOG_FILE_DIRECTORY + "/" + log_file_name)
+  print("Sync started!") 
 
   
 func on_sync_stopped():

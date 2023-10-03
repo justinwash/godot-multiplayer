@@ -46,10 +46,12 @@ func _network_process(_input):
 
 
 func _explode():
-  SyncManager.spawn("explosion", _effects_node, explosion_scene, {position = global_position} )
-  SyncManager.despawn(self)
+  pass
+  #SyncManager.spawn("explosion", _effects_node, explosion_scene, {position = global_position} )
+  #SyncManager.despawn(self)
 
 
 func _on_abandonment_timer_timeout():
-  SyncManager.despawn(self)
+  pass
+  #SyncManager.despawn(self)
   

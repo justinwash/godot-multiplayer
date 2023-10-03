@@ -55,10 +55,7 @@ func _get_local_input():
   if Input.is_action_just_pressed("fire"):
     input["fire"] = true
   
-  if mouse_movements.size() > 0:
-    input["mouse_movements"] = mouse_movements.duplicate()
-    mouse_movements.clear()
-  current_input = input.duplicate()
+  # this might become get_local_state
   return input
   
 
@@ -83,12 +80,12 @@ func _network_process(input):
     move_and_slide()
     return
 
-  if input.get("mouse_movements"):
-    for event in input["mouse_movements"]:
-      rotate_y(deg_to_rad(-event.relative_x * 0.08))
-      rotation_helper.rotate_y(deg_to_rad(-event.relative_x * 0.08))
-      camera.rotate_x(deg_to_rad(-event.relative_y * 0.08))
-      camera.rotation.x = clamp(camera.rotation.x, deg_to_rad(-89), deg_to_rad(89))
+#  if input.get("mouse_movements"):
+#    for event in input["mouse_movements"]:
+#      rotate_y(deg_to_rad(-event.relative_x * 0.08))
+#      rotation_helper.rotate_y(deg_to_rad(-event.relative_x * 0.08))
+#      camera.rotate_x(deg_to_rad(-event.relative_y * 0.08))
+#      camera.rotation.x = clamp(camera.rotation.x, deg_to_rad(-89), deg_to_rad(89))
     
   if input.get("jump") and is_on_floor():
     velocity.y = JUMP_VELOCITY
@@ -113,7 +110,6 @@ func _save_state():
     "rotation_helper_rotation": rotation_helper.rotation,
     "camera_rotation": camera.rotation,
     "health": health,
-    "mouse_movements": mouse_movements.duplicate()
   }
   
   
@@ -124,13 +120,15 @@ func _load_state(state):
   rotation_helper.rotation = state["rotation_helper_rotation"]
   camera.rotation = state["camera_rotation"]
   health = state["health"]
-  mouse_movements = state["mouse_movements"]
   
   
 func _input(event):
   if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED && is_multiplayer_authority() && allow_mouse_input:
     if event is InputEventMouseMotion:
-      mouse_movements.append({"relative_x": event.relative.x, "relative_y": event.relative.y})
+      rotate_y(deg_to_rad(-event.relative.x * 0.08))
+      rotation_helper.rotate_y(deg_to_rad(-event.relative.x * 0.08))
+      camera.rotate_x(deg_to_rad(-event.relative.y * 0.08))
+      camera.rotation.x = clamp(camera.rotation.x, deg_to_rad(-89), deg_to_rad(89))
 
 
 func fire():
@@ -138,13 +136,14 @@ func fire():
   _fire_timer.start()
   
   var projectile_velocity = (_aim_point.global_position - _projectile_spawn_point.global_position).normalized()
-  SyncManager.spawn("fireball", _projectiles_node, fireball_scene, { 
-    position = _projectile_spawn_point.global_position, 
-    velocity = projectile_velocity,
-    owner = get_path()
-    })
+#  SyncManager.spawn("fireball", _projectiles_node, fireball_scene, { 
+#    position = _projectile_spawn_point.global_position, 
+#    velocity = projectile_velocity,
+#    owner = get_path()
+#    })
 
 
 func _on_fire_timer_timeout():
   fire_ready = true
   
+

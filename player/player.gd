@@ -46,6 +46,8 @@ func _physics_process(delta):
   
   
 func _get_local_input():
+  if !is_multiplayer_authority(): return {}
+  
   var input_vector = Input.get_vector("strafe_left", "strafe_right", "forward", "backward")
     
   var input := {}
@@ -139,11 +141,13 @@ func fire():
   _fire_timer.start()
   
   var projectile_velocity = (_aim_point.global_position - _projectile_spawn_point.global_position).normalized()
-#  SyncManager.spawn("fireball", _projectiles_node, fireball_scene, { 
-#    position = _projectile_spawn_point.global_position, 
-#    velocity = projectile_velocity,
-#    owner = get_path()
-#    })
+  var new_fireball = fireball_scene.instantiate()
+  _projectiles_node.add_child(new_fireball)
+  new_fireball._network_spawn({ 
+    position = _projectile_spawn_point.global_position, 
+    velocity = projectile_velocity,
+    owner = get_path()
+    })
 
 
 func _on_fire_timer_timeout():

@@ -37,6 +37,10 @@ func _load_state(data):
   exploded = data["exploded"]
 
   
+func _physics_process(_delta):
+  _network_process({})
+  
+  
 func _network_process(_input):
   if !exploded:
     exploded = move_and_slide()
@@ -46,12 +50,14 @@ func _network_process(_input):
 
 
 func _explode():
-  pass
-  #SyncManager.spawn("explosion", _effects_node, explosion_scene, {position = global_position} )
-  #SyncManager.despawn(self)
+  var explosion = explosion_scene.instantiate()
+  _effects_node.add_child(explosion)
+  explosion._network_spawn({
+    position = global_position
+  })
+  queue_free()
 
 
 func _on_abandonment_timer_timeout():
-  pass
-  #SyncManager.despawn(self)
+  queue_free()
   

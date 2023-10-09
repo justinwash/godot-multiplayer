@@ -35,5 +35,4 @@ func load_state(state):
 
 
 func _on_timer_timeout():
-  pass
-  #SyncManager.despawn(self)
+  queue_free()

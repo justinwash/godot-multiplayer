@@ -43,14 +43,10 @@ func on_peer_connected(id):
   if !host && id != 1:
     if multiplayer.get_unique_id() > id:
       $Players/Player1.set_multiplayer_authority(id)
-      print(multiplayer.get_unique_id(), ' player 1 multiplayer auth ', id)
       $Players/Player2.set_multiplayer_authority(multiplayer.get_unique_id())
-      print(multiplayer.get_unique_id(), ' player 2 multiplayer auth ', multiplayer.get_unique_id())
     else:
       $Players/Player1.set_multiplayer_authority(multiplayer.get_unique_id())
-      print(multiplayer.get_unique_id(), ' player 1 multiplayer auth ', multiplayer.get_unique_id())
       $Players/Player2.set_multiplayer_authority(id)
-      print(multiplayer.get_unique_id(), ' player 2 multiplayer auth ', id)
          
   if host:
     $Camera3D.current = true
@@ -61,14 +57,10 @@ func on_peer_connected(id):
       print('we have enough peers, assigning control on server')
       if peers[0] > peers[1]:
         $Players/Player1.set_multiplayer_authority(peers[1])
-        print(multiplayer.get_unique_id(), ' player 1 multiplayer auth ', peers[1])
         $Players/Player2.set_multiplayer_authority(peers[0])
-        print(multiplayer.get_unique_id(), ' player 2 multiplayer auth ', peers[0])
       else:
         $Players/Player1.set_multiplayer_authority(peers[0])
-        print(multiplayer.get_unique_id(), ' player 1 multiplayer auth ', peers[0])
         $Players/Player2.set_multiplayer_authority(peers[1])
-        print(multiplayer.get_unique_id(), ' player 2 multiplayer auth ', peers[1])
     else:
       print('peer failed to connect. Dying dead.')
       get_tree().quit()

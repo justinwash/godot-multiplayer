@@ -8,7 +8,7 @@ extends CharacterBody3D
 @onready var _projectiles_node: Node3D = get_node("/root/Main/Projectiles")
 var fireball_scene = preload("res://projectiles/fireball/Fireball.tscn")
 
-var mouse_movements = []
+var mouse_inputs = []
 
 const SPEED = 16.0
 const JUMP_VELOCITY = 16
@@ -57,18 +57,19 @@ func _get_local_input():
   if Input.is_action_just_pressed("fire"):
     input["fire"] = true
   
-  if mouse_movements.size() > 0:
+  if mouse_inputs.size() > 0:
     input["camera_rotation"] = camera.global_rotation
-    mouse_movements.clear()
+      
+    mouse_inputs.clear()
     
   return input
   
 
-func _predict_remote_input(previous_input, ticks_since_real_input):
-  var input = previous_input.duplicate()
-  input.erase("fire")
-  
-  return input
+#func _predict_remote_input(previous_input, ticks_since_real_input):
+#  var input = previous_input.duplicate()
+#  input.erase("fire")
+#
+#  return input
 
 
 func _network_process(input):
@@ -128,10 +129,12 @@ func _load_state(state):
 func _input(event):
   if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED && is_multiplayer_authority() && allow_mouse_input:
     if event is InputEventMouseMotion:
-      mouse_movements.append(event)
+      mouse_inputs.append(event)
       rotation_helper.rotate_y(deg_to_rad(-event.relative.x * 0.08))
       camera.rotate_x(deg_to_rad(-event.relative.y * 0.08))
       camera.rotation.x = clamp(camera.rotation.x, deg_to_rad(-89), deg_to_rad(89))
+      
+      
 
 
 func fire():

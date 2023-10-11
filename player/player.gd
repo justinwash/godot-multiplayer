@@ -31,6 +31,8 @@ var allow_mouse_input = false
 
 var health = 100
 
+var server_state
+
 
 func _process(delta):
   $CanvasLayer/Container/Player1Health.text = str(get_node("/root/Main/Players/Player1").health)
@@ -110,20 +112,26 @@ func _network_process(input):
 
 func _save_state():
   return {
-    "position": position,
+    "position": global_position,
     "velocity": velocity,
-    "rotation": rotation,
+    "rotation": global_rotation,
     "camera_rotation": camera.global_rotation,
     "health": health,
   }
   
   
 func _load_state(state):
-  position = state["position"]
+  global_position = state["position"]
   velocity = state["velocity"]
-  rotation = state["rotation"]
+  global_rotation = state["rotation"]
+  rotation_helper.global_position = state["position"]
+  rotation_helper.global_rotation = state["rotation"]
   camera.rotation = state["camera_rotation"]
   health = state["health"]
+
+
+func _load_remote_state(state):
+  server_state = state
   
   
 func _input(event):

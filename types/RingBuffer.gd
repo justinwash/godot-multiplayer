@@ -2,7 +2,8 @@ extends Node
 
 class_name RingBuffer
 
-var i := -1
+var tick := -1
+var rollback_tick := -1
 var buffer : Array = []
 
 
@@ -11,22 +12,22 @@ func _init(size):
   
   
 func current() -> Variant:
-  return buffer[i % buffer.size()]
+  return buffer[tick % buffer.size()]
 
 
 func next() -> Variant:
-  i += 1
-  return buffer[i % buffer.size()]
+  tick += 1
+  return buffer[tick % buffer.size()]
   
 
 func step() -> void:
-  i += 1
+  tick += 1
   
 
 func append(value) -> Variant:
   step()
-  buffer[i % buffer.size()] = value
-  return buffer[i % buffer.size()]
+  buffer[tick % buffer.size()] = value
+  return buffer[tick % buffer.size()]
   
   
 func put_t(index, value) -> void:
@@ -39,3 +40,21 @@ func get_t(index) -> Variant:
   return buffer[translated_index]
 
 
+func get_current_tick() -> int:
+  return tick
+
+
+func set_current_tick(index) -> void:
+  tick = index
+
+
+func get_rollback_tick() -> int:
+  return rollback_tick
+  
+  
+func set_rollback_tick(index) -> void:
+  rollback_tick = index
+
+
+func reset_rollback_tick() -> void:
+  rollback_tick = tick

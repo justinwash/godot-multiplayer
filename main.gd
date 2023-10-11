@@ -18,10 +18,6 @@ func start():
   
   var _peer_connected =  multiplayer.peer_connected.connect(on_peer_connected)
   var _peer_disconnected = multiplayer.peer_disconnected.connect(on_peer_disconnected)
-#  var _sync_started = SyncManager.sync_started.connect(on_sync_started)
-#  var _sync_stopped = SyncManager.sync_stopped.connect(on_sync_stopped)
-#  var _sync_lost = SyncManager.sync_lost.connect(on_sync_lost)
-#  var _sync_regained = SyncManager.sync_regained.connect(on_sync_regained)
     
   if peer.host:
     host = true
@@ -37,7 +33,8 @@ func start():
     multiplayer.multiplayer_peer = peer
 
 func on_peer_connected(id):
-  #SyncManager.add_peer(id)
+  if id != 1:
+    Networker.add_peer_and_self(id)
   print(id, " connected!")
   
   if !host && id != 1:

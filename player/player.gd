@@ -41,9 +41,6 @@ func _physics_process(delta):
   if multiplayer.get_unique_id() == get_multiplayer_authority() && multiplayer.get_unique_id() !=1:
     camera.current = true
   
-  var input = _get_local_input()
-  _network_process(input)
-  
   
 func _get_local_input():
   if !is_multiplayer_authority(): return {}
@@ -60,7 +57,10 @@ func _get_local_input():
   if Input.is_action_just_pressed("fire"):
     input["fire"] = true
   
-  # this might become get_local_state
+#  if mouse_movements.size() > 0:
+#    input["camera_rotation"] = camera.global_rotation
+#    mouse_movements.clear()
+    
   return input
   
 
@@ -84,13 +84,13 @@ func _network_process(input):
   if input.size() <= 0:
     move_and_slide()
     return
-
-#  if input.get("mouse_movements"):
-#    for event in input["mouse_movements"]:
-#      rotate_y(deg_to_rad(-event.relative_x * 0.08))
-#      rotation_helper.rotate_y(deg_to_rad(-event.relative_x * 0.08))
-#      camera.rotate_x(deg_to_rad(-event.relative_y * 0.08))
-#      camera.rotation.x = clamp(camera.rotation.x, deg_to_rad(-89), deg_to_rad(89))
+    
+#  if input.get("camera_rotation"):
+#    if is_multiplayer_authority():
+#      global_rotation = Vector3(0.0, camera.global_rotation.y, 0.0)
+#    else:
+#      global_rotation = Vector3(0.0, camera.global_rotation.y, 0.0)
+#      camera.global_rotation = input["camera_rotation"]
     
   if input.get("jump") and is_on_floor():
     velocity.y = JUMP_VELOCITY
@@ -112,8 +112,7 @@ func _save_state():
     "position": position,
     "velocity": velocity,
     "rotation": rotation,
-    "rotation_helper_rotation": rotation_helper.rotation,
-    "camera_rotation": camera.rotation,
+    "camera_rotation": camera.global_rotation,
     "health": health,
   }
   
@@ -122,7 +121,6 @@ func _load_state(state):
   position = state["position"]
   velocity = state["velocity"]
   rotation = state["rotation"]
-  rotation_helper.rotation = state["rotation_helper_rotation"]
   camera.rotation = state["camera_rotation"]
   health = state["health"]
   
@@ -130,7 +128,7 @@ func _load_state(state):
 func _input(event):
   if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED && is_multiplayer_authority() && allow_mouse_input:
     if event is InputEventMouseMotion:
-      rotate_y(deg_to_rad(-event.relative.x * 0.08))
+      mouse_movements.append(event)
       rotation_helper.rotate_y(deg_to_rad(-event.relative.x * 0.08))
       camera.rotate_x(deg_to_rad(-event.relative.y * 0.08))
       camera.rotation.x = clamp(camera.rotation.x, deg_to_rad(-89), deg_to_rad(89))

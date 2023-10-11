@@ -57,8 +57,6 @@ func _physics_process(delta):
   for input in inputs:
     if !unacked_inputs[id].has(input):
       unacked_inputs[id][tick] = input
-      
-  print("received_inputs: ", inputs) 
   
 
 

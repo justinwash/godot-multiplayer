@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://bmy5q0qograde"]
+
+[ext_resource type="Script" path="res://debug/ui/FPSCounter.gd" id="1_w2ca2"]
+
+[node name="DebugOverlay" type="CanvasLayer"]
+
+[node name="FPSCounter" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 111.0
+offset_bottom = 36.0
+script = ExtResource("1_w2ca2")
+
+[node name="Label" type="Label" parent="FPSCounter"]
+layout_mode = 0
+offset_right = 110.0
+offset_bottom = 37.0

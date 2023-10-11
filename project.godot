@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 Types="*res://types/Types.gd"
 Networker="*res://networking/Networker.gd"
+DebugOverlay="*res://debug/ui/DebugOverlay.tscn"
 
 [editor_plugins]
 

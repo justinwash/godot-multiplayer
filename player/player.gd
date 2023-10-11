@@ -57,9 +57,9 @@ func _get_local_input():
   if Input.is_action_just_pressed("fire"):
     input["fire"] = true
   
-#  if mouse_movements.size() > 0:
-#    input["camera_rotation"] = camera.global_rotation
-#    mouse_movements.clear()
+  if mouse_movements.size() > 0:
+    input["camera_rotation"] = camera.global_rotation
+    mouse_movements.clear()
     
   return input
   
@@ -85,12 +85,12 @@ func _network_process(input):
     move_and_slide()
     return
     
-#  if input.get("camera_rotation"):
-#    if is_multiplayer_authority():
-#      global_rotation = Vector3(0.0, camera.global_rotation.y, 0.0)
-#    else:
-#      global_rotation = Vector3(0.0, camera.global_rotation.y, 0.0)
-#      camera.global_rotation = input["camera_rotation"]
+  if input.get("camera_rotation"):
+    if is_multiplayer_authority():
+      global_rotation = Vector3(0.0, camera.global_rotation.y, 0.0)
+    else:
+      global_rotation = Vector3(0.0, camera.global_rotation.y, 0.0)
+      camera.global_rotation = input["camera_rotation"]
     
   if input.get("jump") and is_on_floor():
     velocity.y = JUMP_VELOCITY

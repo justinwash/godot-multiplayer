@@ -32,7 +32,7 @@ mesh = SubResource("CylinderMesh_fs7ay")
 skeleton = NodePath("../../..")
 
 [node name="ProjectileSpawnPoint" type="Marker3D" parent="RotationHelper/Camera3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2445, -0.5, -1)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1)
 
 [node name="AimPoint" type="Marker3D" parent="RotationHelper/Camera3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -80)
@@ -66,16 +66,18 @@ vertical_alignment = 1
 
 [node name="Player1Health" type="Label" parent="CanvasLayer/Container"]
 layout_mode = 0
+offset_top = 24.0
 offset_right = 51.0
-offset_bottom = 39.0
+offset_bottom = 63.0
 text = "100"
 horizontal_alignment = 1
 
 [node name="Player2Health" type="Label" parent="CanvasLayer/Container"]
 layout_mode = 0
 offset_left = 1089.0
+offset_top = 24.0
 offset_right = 1152.0
-offset_bottom = 39.0
+offset_bottom = 63.0
 text = "100"
 horizontal_alignment = 1
 

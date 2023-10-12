@@ -14,6 +14,9 @@ var acked_inputs := {}
 
 var snapshots_to_process := {}
 
+var snapshots_sent = 0
+var snapshots_received = 0
+
 
 func add_peer_and_self(id):
   input_buffers[id] = Types.RingBuffer.new(BUFFER_SIZE)
@@ -53,12 +56,15 @@ func _physics_process(delta):
     # if we are the server, then try to process the inputs we have received
     elif multiplayer.is_server():
       input_buffers[id].reset_rollback_tick()
-      if unacked_inputs[id].size() < 1:
+      var inputs_to_process = unacked_inputs[id].duplicate()
+      unacked_inputs[id].clear()
+  
+      if inputs_to_process.size() < 1:
         # print('no input received this tick from ', id)
         node._network_process({})
         state_buffers[id].append(node._save_state())
 
-      for input_tick in unacked_inputs[id].keys():
+      for input_tick in inputs_to_process.keys():
         # If we already sent an acknowledgement for this tick, don't reprocess it
         if acked_inputs.has(input_tick):
           continue
@@ -68,7 +74,7 @@ func _physics_process(delta):
           continue
           
         # Else put it in the input buffer
-        input_buffers[id].put_t(input_tick, unacked_inputs[id][input_tick])
+        input_buffers[id].put_t(input_tick, inputs_to_process[input_tick])
 
         if input_tick > input_buffers[id].get_current_tick():
           if input_buffers[id].get_rollback_tick() == input_buffers[id].get_current_tick():
@@ -96,14 +102,16 @@ func _physics_process(delta):
         state_buffers[id].put_t(input_buffers[id].get_current_tick(), node._save_state())
         
       # Then move processed inputs from unacked to acked
-      acked_inputs[id] = unacked_inputs[id].duplicate()
-      unacked_inputs[id] = {}
+      acked_inputs[id] = inputs_to_process.duplicate()
         
     # If we are a remote player, do ...something?
     else:
       if snapshots_to_process.has(node.get_multiplayer_authority()):
         for state in snapshots_to_process[node.get_multiplayer_authority()]:
           node._load_state(state)
+          if multiplayer.get_unique_id() > node.get_multiplayer_authority():
+            print("state loaded: ", state)
+        snapshots_to_process[node.get_multiplayer_authority()].clear()
         
 
   # If we're not the server, then we're done
@@ -122,11 +130,16 @@ func _physics_process(delta):
     # Else add it to the snapshot of the current gamestate and the ids of ticks we acked
     snapshot[node.get_multiplayer_authority()] = {
       "state": state_buffers[id].current(),
+      "buffer_tick": state_buffers[id].get_current_tick(),
       "acked_inputs": acked_inputs[id]
     }
     
-  rpc("receive_snapshot", snapshot)
   
+   
+  rpc("receive_snapshot", snapshot)
+  snapshots_sent += 1
+  for input_buffer in acked_inputs:
+    acked_inputs[input_buffer].clear()
 
 @rpc("any_peer", "unreliable") func receive_inputs(id, inputs):
   for input in inputs:
@@ -135,6 +148,7 @@ func _physics_process(delta):
   
   
 @rpc("authority", "unreliable") func receive_snapshot(snapshot):
+  snapshots_received += 1
   var id = multiplayer.get_unique_id()
   for ack in snapshot[id]["acked_inputs"]:
     if unacked_inputs[id].has(ack):

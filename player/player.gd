@@ -121,13 +121,14 @@ func _save_state():
   
   
 func _load_state(state):
-  global_position = state["position"]
-  velocity = state["velocity"]
-  global_rotation = state["rotation"]
-  rotation_helper.global_position = state["position"]
-  rotation_helper.global_rotation = state["rotation"]
-  camera.rotation = state["camera_rotation"]
-  health = state["health"]
+  if state:
+    global_position = state["position"]
+    velocity = state["velocity"]
+    global_rotation = state["rotation"]
+    rotation_helper.global_position = state["position"]
+    rotation_helper.global_rotation = state["rotation"]
+    camera.rotation = state["camera_rotation"]
+    health = state["health"]
 
 
 func _load_remote_state(state):
